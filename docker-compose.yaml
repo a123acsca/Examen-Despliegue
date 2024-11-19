@@ -1,0 +1,81 @@
+services:
+
+  appmaestros:
+    build:
+      context: .
+      dockerfile: dockerfile_maestros
+    container_name: appmaestros
+    environment:
+      DB_HOST: dbmaestros
+      DB_NAME: maestros
+      DB_USER: luciano
+      DB_PASSWORD: itm123
+      API_ALUMNO: appalumnos
+    volumes:
+     - ./maestros.php:/var/www/html/maestros.php
+    ports:
+      - "8080:80"
+
+  appalumnos:
+    build:
+      context: .
+      dockerfile: dockerfile_alumnos
+    container_name: appalumnos
+    environment:
+      DB_HOST: dbalumnos
+      DB_NAME: alumnos
+      DB_USER: luciano
+      DB_PASSWORD: itm123
+    volumes:
+      - ./alumnos.php:/var/www/html/alumnos.php
+    ports:
+      - "8081:80"
+
+  dbalumnos:
+    image: mysql:latest
+    container_name: dbalumnos
+    environment:
+
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: alumnos
+      MYSQL_USER: luciano
+      MYSQL_PASSWORD: itm123
+    volumes:
+      - db_alumnos:/var/lib/mysql
+      - ./alumnos.sql:/docker-entrypoint-initdb.d/alumnos.sql
+
+  dbmaestros:
+    image: mysql:latest
+    container_name: dbmaestros
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: maestros
+      MYSQL_USER: luciano
+      MYSQL_PASSWORD: itm123
+    volumes:
+      - db_maestros:/var/lib/mysql
+      - ./maestros.sql:/docker-entrypoint-initdb.d/maestros.sql
+
+
+  phpmyadmin_alumnos:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin_alumnos
+    environment:
+      PMA_HOST: dbalumnos
+      PMA_USER: luciano
+      PMA_PASSWORD: itm123
+    ports:
+      - "8090:80"
+
+  phpmyadmin_maestros:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin_maestros
+    environment:
+      PMA_HOST: dbmaestros
+      PMA_USER: luciano
+      PMA_PASSWORD: itm123
+    ports:
+      - "8091:80"
+volumes:
+  db_alumnos:
+  db_maestros:
